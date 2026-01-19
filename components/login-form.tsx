@@ -44,7 +44,7 @@ export function LoginForm({
       setError(error.message)
       setLoading(false)
     } else {
-      router.push("/home") // or whatever path you want
+      router.push("/") // or whatever path you want
     }
   }
 
