@@ -1,7 +1,9 @@
+import { AuthScreen } from "@/components/auth-screen"
+
 export default function Home() {
   return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
+    <main>
+      <AuthScreen />
+    </main>
   )
 }
