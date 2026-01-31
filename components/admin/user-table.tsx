@@ -33,9 +33,11 @@ interface User {
 
 interface UserTableProps {
     users: User[]
+    currentUserRole: 'admin' | 'super_admin'
+    currentUserId: string
 }
 
-export function UserTable({ users }: UserTableProps) {
+export function UserTable({ users, currentUserRole, currentUserId }: UserTableProps) {
     const [loadingId, setLoadingId] = useState<string | null>(null)
 
     const handleDelete = async (userId: string) => {
@@ -52,7 +54,7 @@ export function UserTable({ users }: UserTableProps) {
 
     const handleRoleUpdate = async (userId: string, newRole: 'user' | 'admin' | 'super_admin') => {
         setLoadingId(userId)
-        const result = await updateUserRole(userId, newRole)
+        const result = await updateUserRole(userId, newRole, currentUserId)
         setLoadingId(null)
 
         if (result.error) {
@@ -60,22 +62,63 @@ export function UserTable({ users }: UserTableProps) {
         }
     }
 
+    // Check if current user can perform actions on target user
+    const canMakeAdmin = (targetRole: string) => {
+        // Both admin and super_admin can make users into admins
+        return targetRole === 'user'
+    }
+
+    const canDemoteToUser = (targetRole: string) => {
+        // Only super_admin can demote admins to users
+        // Admin cannot demote other admins
+        if (targetRole === 'admin') {
+            return currentUserRole === 'super_admin'
+        }
+        return false
+    }
+
+    const canDeleteUser = (targetRole: string) => {
+        // Admin can only delete regular users
+        // Super_admin can delete users and admins
+        if (targetRole === 'super_admin') return false
+        if (targetRole === 'admin') return currentUserRole === 'super_admin'
+        return true
+    }
+
+    const getRoleLabel = (role: string) => {
+        switch (role) {
+            case 'super_admin': return 'Super Admin'
+            case 'admin': return 'Admin'
+            default: return 'User'
+        }
+    }
+
+    const getRoleBadgeClasses = (role: string) => {
+        switch (role) {
+            case 'super_admin':
+                return 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+            case 'admin':
+                return 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+            default:
+                return 'bg-secondary text-secondary-foreground border-border'
+        }
+    }
+
     return (
-        <div className="rounded-md border">
+        <div className="rounded-md border border-border bg-card">
             <Table>
                 <TableHeader>
-                    <TableRow>
-                        <TableHead>User</TableHead>
-                        {/* Phone column removed as requested */}
-                        <TableHead>Roles</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Created</TableHead>
+                    <TableRow className="border-border hover:bg-muted/50">
+                        <TableHead className="text-muted-foreground">User</TableHead>
+                        <TableHead className="text-muted-foreground">Role</TableHead>
+                        <TableHead className="text-muted-foreground">Status</TableHead>
+                        <TableHead className="text-muted-foreground">Created</TableHead>
                         <TableHead className="text-right"></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {users.map((user) => (
-                        <TableRow key={user.id}>
+                        <TableRow key={user.id} className="border-border hover:bg-muted/50">
                             <TableCell>
                                 <div className="flex flex-col">
                                     <span className="font-medium text-foreground">{user.full_name || 'N/A'}</span>
@@ -83,19 +126,19 @@ export function UserTable({ users }: UserTableProps) {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                                    {user.role === 'super_admin' ? 'platform_super_admin' : user.role === 'admin' ? 'Admin' : 'User'}
+                                <div className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${getRoleBadgeClasses(user.role)}`}>
+                                    {getRoleLabel(user.role)}
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent ${user.status === 'Active'
-                                        ? 'bg-orange-500 text-white hover:bg-orange-600'
-                                        : 'bg-zinc-500 text-white hover:bg-zinc-600'
+                                <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${user.status === 'Active'
+                                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                    : 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30'
                                     }`}>
                                     {user.status}
                                 </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="text-muted-foreground">
                                 {new Date(user.created_at).toLocaleDateString('en-US', {
                                     year: 'numeric',
                                     month: 'short',
@@ -105,27 +148,44 @@ export function UserTable({ users }: UserTableProps) {
                             <TableCell className="text-right">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0" disabled={loadingId === user.id}>
+                                        <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground" disabled={loadingId === user.id}>
                                             <span className="sr-only">Open menu</span>
                                             <MoreHorizontal className="h-4 w-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => handleRoleUpdate(user.id, 'admin')}>
-                                            <Shield className="mr-2 h-4 w-4" />
-                                            Make Admin
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleRoleUpdate(user.id, 'user')}>
-                                            <UserCog className="mr-2 h-4 w-4" />
-                                            Demote to User
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(user.id)}>
-                                            <Trash className="mr-2 h-4 w-4" />
-                                            Delete User
-                                        </DropdownMenuItem>
+                                    <DropdownMenuContent align="end" className="bg-popover border-border">
+                                        <DropdownMenuLabel className="text-foreground">Actions</DropdownMenuLabel>
+                                        <DropdownMenuSeparator className="bg-border" />
+                                        {canMakeAdmin(user.role) && (
+                                            <DropdownMenuItem
+                                                onClick={() => handleRoleUpdate(user.id, 'admin')}
+                                                className="text-foreground hover:bg-muted"
+                                            >
+                                                <Shield className="mr-2 h-4 w-4" />
+                                                Make Admin
+                                            </DropdownMenuItem>
+                                        )}
+                                        {canDemoteToUser(user.role) && (
+                                            <DropdownMenuItem
+                                                onClick={() => handleRoleUpdate(user.id, 'user')}
+                                                className="text-foreground hover:bg-muted"
+                                            >
+                                                <UserCog className="mr-2 h-4 w-4" />
+                                                Demote to User
+                                            </DropdownMenuItem>
+                                        )}
+                                        {(canMakeAdmin(user.role) || canDemoteToUser(user.role)) && canDeleteUser(user.role) && (
+                                            <DropdownMenuSeparator className="bg-border" />
+                                        )}
+                                        {canDeleteUser(user.role) && (
+                                            <DropdownMenuItem
+                                                className="text-destructive hover:bg-destructive/10"
+                                                onClick={() => handleDelete(user.id)}
+                                            >
+                                                <Trash className="mr-2 h-4 w-4" />
+                                                Delete User
+                                            </DropdownMenuItem>
+                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </TableCell>
@@ -136,3 +196,4 @@ export function UserTable({ users }: UserTableProps) {
         </div>
     )
 }
+

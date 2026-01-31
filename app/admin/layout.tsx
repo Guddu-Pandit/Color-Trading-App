@@ -14,6 +14,7 @@ export default function AdminLayout({
     const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [authorized, setAuthorized] = useState(false)
+    const [currentUserRole, setCurrentUserRole] = useState<'admin' | 'super_admin' | null>(null)
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -34,6 +35,7 @@ export default function AdminLayout({
                 router.push("/")
             } else {
                 setAuthorized(true)
+                setCurrentUserRole(profile.role as 'admin' | 'super_admin')
             }
             setLoading(false)
         }
@@ -42,7 +44,7 @@ export default function AdminLayout({
     }, [router])
 
     if (loading) {
-        return <div className="flex items-center justify-center h-screen">Loading...</div>
+        return <div className="dark flex items-center justify-center h-screen bg-background text-foreground">Loading...</div>
     }
 
     if (!authorized) {
@@ -50,7 +52,7 @@ export default function AdminLayout({
     }
 
     return (
-        <div className="flex bg-muted/40 h-screen w-full">
+        <div className="dark flex bg-background h-screen w-full text-foreground">
             <AdminSidebar />
             <div className="flex flex-col flex-1 overflow-hidden">
                 <AdminNavbar />

@@ -37,17 +37,17 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
     return (
         <aside
             className={cn(
-                "bg-gray-50 dark:bg-gray-900 border-r transition-all duration-300 flex flex-col relative",
+                "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col relative",
                 isCollapsed ? "w-16" : "w-64"
             )}
         >
-            <div className="p-4 flex items-center justify-between border-b h-16">
-                {!isCollapsed && <span className="font-bold text-lg">Dashboard</span>}
+            <div className="p-4 flex items-center justify-between border-b border-sidebar-border h-16">
+                {!isCollapsed && <span className="font-bold text-lg text-sidebar-foreground">Dashboard</span>}
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={toggleCollapse}
-                    className={cn("h-8 w-8", isCollapsed && "mx-auto")}
+                    className={cn("h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent", isCollapsed && "mx-auto")}
                 >
                     {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
                 </Button>
@@ -58,8 +58,8 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                 <Link
                     href="/"
                     className={cn(
-                        "flex items-center gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm font-medium",
-                        pathname === "/" ? "bg-gray-200 dark:bg-gray-800 text-primary" : "text-gray-600 dark:text-gray-400",
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
                         isCollapsed ? "justify-center" : ""
                     )}
                 >
@@ -70,8 +70,8 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                 <Link
                     href="/transactions"
                     className={cn(
-                        "flex items-center gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm font-medium",
-                        pathname === "/transactions" ? "bg-gray-200 dark:bg-gray-800 text-primary" : "text-gray-600 dark:text-gray-400",
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/transactions" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
                         isCollapsed ? "justify-center" : ""
                     )}
                 >
@@ -82,8 +82,8 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                 <Link
                     href="/settings"
                     className={cn(
-                        "flex items-center gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm font-medium",
-                        pathname === "/settings" ? "bg-gray-200 dark:bg-gray-800 text-primary" : "text-gray-600 dark:text-gray-400",
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/settings" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
                         isCollapsed ? "justify-center" : ""
                     )}
                 >
@@ -92,13 +92,13 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                 </Link>
             </nav>
 
-            <div className="p-2 border-t mt-auto">
+            <div className="p-2 border-t border-sidebar-border mt-auto">
                 {isAdmin && (
                     <Link
                         href="/admin"
                         className={cn(
-                            "flex items-center gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm font-medium",
-                            pathname.startsWith("/admin") ? "bg-gray-200 dark:bg-gray-800 text-primary" : "text-gray-600 dark:text-gray-400",
+                            "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                            pathname.startsWith("/admin") ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
                             isCollapsed ? "justify-center" : ""
                         )}
                     >

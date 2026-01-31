@@ -8,7 +8,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
     return (
-        <div className="flex h-screen w-full bg-white dark:bg-gray-950">
+        <div className="dark flex h-screen w-full bg-background text-foreground">
             <Sidebar
                 isCollapsed={isSidebarCollapsed}
                 toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}

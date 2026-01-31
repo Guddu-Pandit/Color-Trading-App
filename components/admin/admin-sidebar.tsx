@@ -22,9 +22,9 @@ export function AdminSidebar() {
     ]
 
     return (
-        <div className="flex h-screen flex-col border-r bg-background w-64">
-            <div className="p-6">
-                <h2 className="text-xl font-bold">Admin Panel</h2>
+        <div className="flex h-screen flex-col border-r border-border bg-sidebar w-64">
+            <div className="p-6 border-b border-border">
+                <h2 className="text-xl font-bold text-sidebar-foreground">Admin Panel</h2>
             </div>
             <nav className="flex-1 space-y-2 p-4">
                 {links.map((link) => {
@@ -34,8 +34,8 @@ export function AdminSidebar() {
                             key={link.href}
                             href={link.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted",
-                                pathname === link.href ? "bg-muted" : "text-muted-foreground"
+                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent",
+                                pathname === link.href ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70"
                             )}
                         >
                             <Icon className="h-4 w-4" />
@@ -44,10 +44,10 @@ export function AdminSidebar() {
                     )
                 })}
             </nav>
-            <div className="p-4 border-t">
+            <div className="p-4 border-t border-border">
                 <Link
                     href="/"
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent"
                 >
                     <ArrowLeft className="h-4 w-4" />
                     Return to User
