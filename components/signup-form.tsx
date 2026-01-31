@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { supabase } from "@/lib/supabase"
-import bcrypt from "bcryptjs"
 
 export function SignUpForm({
     className,
@@ -37,16 +36,12 @@ export function SignUpForm({
         setLoading(true)
         setError(null)
 
-        // Hash the password for the profiles table as requested
-        const hashedPassword = await bcrypt.hash(password, 10)
-
         const { data, error: signUpError } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: {
                     full_name: name,
-                    hashed_password: hashedPassword, // Passing hashed password for the trigger to pick up
                 },
             },
         })
