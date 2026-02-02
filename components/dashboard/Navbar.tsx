@@ -9,23 +9,52 @@ import { useRouter } from "next/navigation"
 
 export function Navbar() {
     const [user, setUser] = useState<User | null>(null)
+    const [balance, setBalance] = useState<number>(0)
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false)
     const [currency, setCurrency] = useState<'INR' | 'USD'>('INR')
     const router = useRouter()
 
     // Conversion rate (approximate)
-    const walletAmount = 100
     const conversionRate = 0.012 // 1 INR ≈ 0.012 USD
 
     const displayAmount = currency === 'INR'
-        ? `₹${walletAmount}`
-        : `$${(walletAmount * conversionRate).toFixed(2)}`
+        ? `₹${balance}`
+        : `$${(balance * conversionRate).toFixed(2)}`
 
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             setUser(user)
+
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('balance')
+                    .eq('id', user.id)
+                    .single()
+
+                if (profile) {
+                    setBalance(profile.balance)
+                }
+
+                // Subscribe to balance changes
+                const channel = supabase
+                    .channel('profile_balance')
+                    .on('postgres_changes', {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'profiles',
+                        filter: `id=eq.${user.id}`
+                    }, (payload) => {
+                        setBalance(payload.new.balance)
+                    })
+                    .subscribe()
+
+                return () => {
+                    supabase.removeChannel(channel)
+                }
+            }
         }
         getUser()
     }, [])
