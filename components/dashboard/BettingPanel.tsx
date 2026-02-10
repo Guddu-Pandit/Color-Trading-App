@@ -8,15 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getGameState, placeBet } from "@/app/actions/betting"
 import { AlertCircle, Clock, Lock, PauseCircle } from "lucide-react"
 
-export function BettingPanel() {
+export function BettingPanel({ gameType = '60s' }: { gameType?: string }) {
     const [gameState, setGameState] = useState<any>(null)
     const [timeLeft, setTimeLeft] = useState<number>(0)
     const [betAmount, setBetAmount] = useState<number>(10)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
+    const lockTime = gameType === '30s' ? 10 : 15
+
     const fetchGameState = async () => {
-        const { data, error } = await getGameState()
+        const { data, error } = await getGameState(gameType)
         if (data) {
             setGameState(data)
             const end = new Date(data.end_time).getTime()
@@ -58,7 +60,7 @@ export function BettingPanel() {
     }, [timeLeft, gameState?.id])
 
     const handlePlaceBet = async (color: string) => {
-        if (timeLeft <= 15) return
+        if (timeLeft <= lockTime) return
         setLoading(true)
         setMessage(null)
 
@@ -71,8 +73,10 @@ export function BettingPanel() {
         setLoading(false)
     }
 
-    const isLocked = timeLeft <= 15
+    const isLocked = timeLeft <= lockTime
     const isPaused = gameState?.is_paused
+
+    const modeName = gameType === '30s' ? 'Blitz' : gameType === '90s' ? 'Storm' : 'Rush'
 
     return (
         <Card className="w-full max-w-2xl mx-auto border-2 border-primary/20 relative overflow-hidden">
@@ -87,7 +91,7 @@ export function BettingPanel() {
             )}
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 
-                <CardTitle className="text-2xl font-bold">Color Betting</CardTitle>
+                <CardTitle className="text-2xl font-bold">{modeName} Betting ({gameType})</CardTitle>
                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${isLocked ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
                     {isLocked ? <Lock className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     <span className="font-mono text-xl">{timeLeft}s</span>

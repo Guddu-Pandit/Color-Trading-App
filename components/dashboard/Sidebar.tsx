@@ -68,15 +68,39 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                 </Link>
 
                 <Link
-                    href="/game"
+                    href="/rush"
                     className={cn(
                         "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
-                        pathname === "/game" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                        pathname === "/rush" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
                         isCollapsed ? "justify-center" : ""
                     )}
                 >
                     <Gamepad2 className="h-5 w-5" />
-                    {!isCollapsed && <span>Play</span>}
+                    {!isCollapsed && <span>Rush (60s)</span>}
+                </Link>
+
+                <Link
+                    href="/blitz"
+                    className={cn(
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/blitz" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                        isCollapsed ? "justify-center" : ""
+                    )}
+                >
+                    <Gamepad2 className="h-5 w-5" />
+                    {!isCollapsed && <span>Blitz (30s)</span>}
+                </Link>
+
+                <Link
+                    href="/storm"
+                    className={cn(
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/storm" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                        isCollapsed ? "justify-center" : ""
+                    )}
+                >
+                    <Gamepad2 className="h-5 w-5" />
+                    {!isCollapsed && <span>Storm (90s)</span>}
                 </Link>
 
                 <Link

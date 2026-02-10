@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getRecentResults } from "@/app/actions/betting"
 import { supabase } from "@/lib/supabase"
 
-export function GameResults() {
+export function GameResults({ gameType = '60s' }: { gameType?: string }) {
     const [results, setResults] = useState<any[]>([])
 
     const fetchResults = async () => {
-        const { data } = await getRecentResults()
+        const { data } = await getRecentResults(gameType)
         if (data) setResults(data)
     }
 
@@ -44,8 +44,8 @@ export function GameResults() {
                     {results.map((res) => (
                         <div key={res.id} className="flex flex-col items-center gap-1">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${res.result_color === 'green' ? 'bg-green-600' :
-                                    res.result_color === 'red' ? 'bg-red-600' :
-                                        res.result_color === 'violet' ? 'bg-purple-600' : 'bg-gray-400'
+                                res.result_color === 'red' ? 'bg-red-600' :
+                                    res.result_color === 'violet' ? 'bg-purple-600' : 'bg-gray-400'
                                 }`}>
                                 {res.result_number ?? '?'}
                             </div>

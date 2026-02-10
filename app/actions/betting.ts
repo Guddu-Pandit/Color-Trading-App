@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin"
 import { supabase } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 
-export async function getGameState() {
+export async function getGameState(gameType: string = '60s') {
     try {
         // Get betting config
         const { data: config } = await supabaseAdmin
@@ -16,6 +16,7 @@ export async function getGameState() {
         const { data: period, error } = await supabaseAdmin
             .from('game_periods')
             .select('*')
+            .eq('game_type', gameType)
             .or('status.eq.active,status.eq.locked')
             .order('start_time', { ascending: false })
             .limit(1)
@@ -29,14 +30,19 @@ export async function getGameState() {
         // If no active period, create one (simple automation for MVP)
         if (!period) {
             const startTime = new Date()
-            const endTime = new Date(startTime.getTime() + 60000) // 60 seconds cycle
+            let duration = 60000 // default 60s
+            if (gameType === '30s') duration = 30000
+            if (gameType === '90s') duration = 90000
+
+            const endTime = new Date(startTime.getTime() + duration)
 
             const { data: newPeriod, error: createError } = await supabaseAdmin
                 .from('game_periods')
                 .insert({
                     start_time: startTime.toISOString(),
                     end_time: endTime.toISOString(),
-                    status: 'active'
+                    status: 'active',
+                    game_type: gameType
                 })
                 .select()
                 .single()
@@ -81,8 +87,9 @@ export async function placeBet(periodId: number, color: string, amount: number) 
         const endTime = new Date(period.end_time)
         const secondsLeft = (endTime.getTime() - now.getTime()) / 1000
 
-        if (secondsLeft <= 15) {
-            return { error: "Betting closed (last 15 seconds)" }
+        const lockTime = period.game_type === '30s' ? 10 : 15
+        if (secondsLeft <= lockTime) {
+            return { error: `Betting closed (last ${lockTime} seconds)` }
         }
 
         // 2. Check user balance
@@ -130,11 +137,12 @@ export async function placeBet(periodId: number, color: string, amount: number) 
     }
 }
 
-export async function getRecentResults() {
+export async function getRecentResults(gameType: string = '60s') {
     const { data, error } = await supabaseAdmin
         .from('game_periods')
         .select('*')
         .eq('status', 'completed')
+        .eq('game_type', gameType)
         .order('end_time', { ascending: false })
         .limit(10)
 
