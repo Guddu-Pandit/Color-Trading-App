@@ -154,7 +154,8 @@ export async function placeBet(periodId: number, color: string, amount: number) 
             return { error: "Failed to place bet" }
         }
 
-        revalidatePath('/')
+        // real-time subscriptions handle UI updates
+        // revalidatePath('/') 
         return { success: true }
     } catch (error) {
         console.error("Unexpected error in placeBet:", error)

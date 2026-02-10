@@ -44,7 +44,10 @@ export function BettingPanel({ gameType = '60s' }: { gameType?: string }) {
                         gameType === '60s' ? newConfig.is_paused_60s :
                             gameType === '90s' ? newConfig.is_paused_90s : false
                 )
-                setGameState((prev: any) => ({ ...prev, is_paused: effectivePaused }))
+                setGameState((prev: any) => {
+                    if (prev?.is_paused === effectivePaused) return prev;
+                    return { ...prev, is_paused: effectivePaused };
+                })
             })
             .subscribe()
 

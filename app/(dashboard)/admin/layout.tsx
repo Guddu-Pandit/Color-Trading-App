@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { redirect, useRouter } from "next/navigation"
-import { AdminSidebar } from "@/components/admin/admin-sidebar"
-import { AdminNavbar } from "@/components/admin/admin-navbar"
 import { supabase } from "@/lib/supabase"
 
 export default function AdminLayout({
@@ -52,14 +50,8 @@ export default function AdminLayout({
     }
 
     return (
-        <div className="dark flex bg-background h-screen w-full text-foreground">
-            <AdminSidebar />
-            <div className="flex flex-col flex-1 overflow-hidden">
-                <AdminNavbar />
-                <main className="flex-1 p-6 overflow-auto">
-                    {children}
-                </main>
-            </div>
+        <div className="animate-in fade-in duration-500 h-full">
+            {children}
         </div>
     )
 }
