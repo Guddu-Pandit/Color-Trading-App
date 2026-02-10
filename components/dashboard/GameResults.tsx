@@ -23,7 +23,7 @@ export function GameResults({ gameType = '60s' }: { gameType?: string }) {
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'game_periods',
-                filter: 'status=eq.completed'
+                filter: `status=eq.completed&game_type=eq.${gameType}`
             }, () => {
                 fetchResults()
             })

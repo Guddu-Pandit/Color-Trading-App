@@ -75,7 +75,7 @@ export function Navbar() {
 
     return (
         <nav className="h-16 border-b border-border px-4 flex items-center justify-between bg-card">
-            <div className="font-semibold text-lg text-foreground">My App</div>
+            <div className="font-bold text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Color Trading</div>
 
             <div className="flex items-center gap-4">
                 {/* Wallet Section with Dropdown */}
