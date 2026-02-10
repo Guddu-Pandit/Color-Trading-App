@@ -4,13 +4,32 @@ import { supabaseAdmin } from "@/lib/supabase-admin"
 import { supabase } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 
+export async function getBettingConfig() {
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('betting_config')
+            .select('*')
+            .single()
+        if (error) return { error: error.message }
+        return { data }
+    } catch (error) {
+        return { error: "Failed to fetch betting config" }
+    }
+}
+
 export async function getGameState(gameType: string = '60s') {
     try {
         // Get betting config
         const { data: config } = await supabaseAdmin
             .from('betting_config')
-            .select('is_paused')
+            .select('*')
             .single()
+
+        const isPaused = config?.is_paused || (
+            gameType === '30s' ? config?.is_paused_30s :
+                gameType === '60s' ? config?.is_paused_60s :
+                    gameType === '90s' ? config?.is_paused_90s : false
+        )
 
         // Get the current active period
         const { data: period, error } = await supabaseAdmin
@@ -50,10 +69,10 @@ export async function getGameState(gameType: string = '60s') {
             if (createError) {
                 return { error: createError.message }
             }
-            return { data: { ...newPeriod, is_paused: config?.is_paused ?? false } }
+            return { data: { ...newPeriod, is_paused: isPaused ?? false } }
         }
 
-        return { data: { ...period, is_paused: config?.is_paused ?? false } }
+        return { data: { ...period, is_paused: isPaused ?? false } }
     } catch (error) {
         console.error("Unexpected error in getGameState:", error)
         return { error: "An unexpected error occurred" }
@@ -68,10 +87,8 @@ export async function placeBet(periodId: number, color: string, amount: number) 
         // 0. Check if betting is paused
         const { data: config } = await supabaseAdmin
             .from('betting_config')
-            .select('is_paused')
+            .select('*')
             .single()
-
-        if (config?.is_paused) return { error: "Betting is currently paused by admin" }
 
         // 1. Check if period is still active
         const { data: period, error: periodError } = await supabaseAdmin
@@ -81,6 +98,14 @@ export async function placeBet(periodId: number, color: string, amount: number) 
             .single()
 
         if (periodError || !period) return { error: "Period not found" }
+
+        const isPaused = config?.is_paused || (
+            period.game_type === '30s' ? config?.is_paused_30s :
+                period.game_type === '60s' ? config?.is_paused_60s :
+                    period.game_type === '90s' ? config?.is_paused_90s : false
+        )
+
+        if (isPaused) return { error: "Betting is currently paused by admin" }
         if (period.status !== 'active') return { error: "Betting closed for this period" }
 
         const now = new Date()
@@ -152,7 +177,7 @@ export async function getRecentResults(gameType: string = '60s') {
 
 import { createClient } from "@/lib/supabase-server"
 
-export async function toggleBetting(paused: boolean) {
+export async function toggleBetting(paused: boolean, target: 'all' | '30s' | '60s' | '90s' = 'all') {
     try {
         const supabaseServer = await createClient()
         const { data: authData, error: authError } = await supabaseServer.auth.getUser()
@@ -175,9 +200,15 @@ export async function toggleBetting(paused: boolean) {
             return { error: "Unauthorized (Not Admin)" }
         }
 
+        const updateData: any = {}
+        if (target === 'all') updateData.is_paused = paused
+        else if (target === '30s') updateData.is_paused_30s = paused
+        else if (target === '60s') updateData.is_paused_60s = paused
+        else if (target === '90s') updateData.is_paused_90s = paused
+
         const { error } = await supabaseAdmin
             .from('betting_config')
-            .update({ is_paused: paused })
+            .update(updateData)
             .eq('id', 1)
 
         if (error) return { error: error.message }

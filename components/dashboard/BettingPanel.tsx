@@ -38,7 +38,13 @@ export function BettingPanel({ gameType = '60s' }: { gameType?: string }) {
                 schema: 'public',
                 table: 'betting_config'
             }, (payload) => {
-                setGameState((prev: any) => ({ ...prev, is_paused: payload.new.is_paused }))
+                const newConfig = payload.new
+                const effectivePaused = newConfig.is_paused || (
+                    gameType === '30s' ? newConfig.is_paused_30s :
+                        gameType === '60s' ? newConfig.is_paused_60s :
+                            gameType === '90s' ? newConfig.is_paused_90s : false
+                )
+                setGameState((prev: any) => ({ ...prev, is_paused: effectivePaused }))
             })
             .subscribe()
 
