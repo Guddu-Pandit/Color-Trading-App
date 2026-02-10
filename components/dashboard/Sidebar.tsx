@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { LayoutDashboard, ChevronLeft, ChevronRight, Settings, CreditCard, Shield } from "lucide-react"
+import { LayoutDashboard, ChevronLeft, ChevronRight, Settings, CreditCard, Shield, Gamepad2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -65,6 +65,42 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                 >
                     <LayoutDashboard className="h-5 w-5" />
                     {!isCollapsed && <span>Dashboard</span>}
+                </Link>
+
+                <Link
+                    href="/rush"
+                    className={cn(
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/rush" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                        isCollapsed ? "justify-center" : ""
+                    )}
+                >
+                    <Gamepad2 className="h-5 w-5" />
+                    {!isCollapsed && <span>Rush (60s)</span>}
+                </Link>
+
+                <Link
+                    href="/blitz"
+                    className={cn(
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/blitz" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                        isCollapsed ? "justify-center" : ""
+                    )}
+                >
+                    <Gamepad2 className="h-5 w-5" />
+                    {!isCollapsed && <span>Blitz (30s)</span>}
+                </Link>
+
+                <Link
+                    href="/storm"
+                    className={cn(
+                        "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                        pathname === "/storm" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                        isCollapsed ? "justify-center" : ""
+                    )}
+                >
+                    <Gamepad2 className="h-5 w-5" />
+                    {!isCollapsed && <span>Storm (90s)</span>}
                 </Link>
 
                 <Link
