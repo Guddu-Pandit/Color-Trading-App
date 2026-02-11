@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { LayoutDashboard, ChevronLeft, ChevronRight, Settings, CreditCard, Shield, Gamepad2, Users, ArrowLeft } from "lucide-react"
+import { LayoutDashboard, ChevronLeft, ChevronRight, Settings, CreditCard, Shield, Gamepad2, Users, ArrowLeft, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -78,6 +78,17 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                             <Users className="h-5 w-5" />
                             {!isCollapsed && <span>User Management</span>}
                         </Link>
+                        <Link
+                            href="/admin/recharges"
+                            className={cn(
+                                "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                                pathname === "/admin/recharges" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                                isCollapsed ? "justify-center" : ""
+                            )}
+                        >
+                            <CreditCard className="h-5 w-5" />
+                            {!isCollapsed && <span>Recharge Management</span>}
+                        </Link>
                     </>
                 ) : (
                     <>
@@ -139,6 +150,18 @@ export function Sidebar({ isCollapsed, toggleCollapse }: SidebarProps) {
                         >
                             <CreditCard className="h-5 w-5" />
                             {!isCollapsed && <span>Transactions</span>}
+                        </Link>
+
+                        <Link
+                            href="/recharge"
+                            className={cn(
+                                "flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sm font-medium",
+                                pathname === "/recharge" ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70",
+                                isCollapsed ? "justify-center" : ""
+                            )}
+                        >
+                            <Wallet className="h-5 w-5" />
+                            {!isCollapsed && <span>Recharge</span>}
                         </Link>
 
                         <Link

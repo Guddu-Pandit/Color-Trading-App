@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase"
 import { User } from "@supabase/supabase-js"
 import { User as UserIcon, LogOut, ChevronDown, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 export function Navbar() {
     const [user, setUser] = useState<User | null>(null)
@@ -22,25 +22,31 @@ export function Navbar() {
         ? `₹${balance}`
         : `$${(balance * conversionRate).toFixed(2)}`
 
+    const pathname = usePathname()
+
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             setUser(user)
 
             if (user) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('balance')
-                    .eq('id', user.id)
-                    .single()
+                const fetchBalance = async () => {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('balance')
+                        .eq('id', user.id)
+                        .single()
 
-                if (profile) {
-                    setBalance(profile.balance)
+                    if (profile) {
+                        setBalance(profile.balance)
+                    }
                 }
+
+                fetchBalance()
 
                 // Subscribe to balance changes
                 const channel = supabase
-                    .channel('profile_balance')
+                    .channel('navbar_balance_metrics')
                     .on('postgres_changes', {
                         event: 'UPDATE',
                         schema: 'public',
@@ -57,7 +63,7 @@ export function Navbar() {
             }
         }
         getUser()
-    }, [])
+    }, [pathname])
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
@@ -110,6 +116,18 @@ export function Navbar() {
                                     <span>US Dollar</span>
                                     {currency === 'USD' && <span className="ml-auto">✓</span>}
                                 </button>
+                                <div className="border-t border-border mt-1 pt-1">
+                                    <button
+                                        onClick={() => {
+                                            router.push('/recharge')
+                                            setIsWalletDropdownOpen(false)
+                                        }}
+                                        className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors hover:bg-primary/10 text-primary font-medium"
+                                    >
+                                        <Wallet className="h-4 w-4" />
+                                        <span>Add More Amount</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
